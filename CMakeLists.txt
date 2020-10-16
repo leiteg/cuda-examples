@@ -7,6 +7,7 @@ project(CUDAExamples
 
 # We need CUDA, obviously.
 find_package(CUDA REQUIRED)
+find_package(OpenMP REQUIRED)
 
 # Configuration
 set(CMAKE_EXPORT_COMPILE_COMMANDS  ON)
@@ -20,3 +21,4 @@ add_subdirectory(stencil)
 add_subdirectory(saxpy)
 add_subdirectory(coalescing)
 add_subdirectory(memtransfer)
+add_subdirectory(matrixmult)
