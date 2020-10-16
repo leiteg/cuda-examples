@@ -101,7 +101,7 @@ __global__ void stencil_1d_shmem(const T *in, T *out, size_t N)
   // Load data from global memory to shared memory
   smem[lindex] = in[gindex];
 
-  // Special case for loading radii to shared memory
+  // Special case for loading halos to shared memory
   if (threadIdx.x < RADIUS) {
     smem[lindex - RADIUS] = in[gindex - RADIUS];
     smem[lindex + blockDim.x] = in[gindex + blockDim.x];
