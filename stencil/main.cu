@@ -21,8 +21,8 @@
  * instead.
  *
  * \param error     CUDA error code
- * \param filename  filename where the error ocurred
- * \param line      line where the error ocurred
+ * \param filename  filename where the error occurred
+ * \param line      line where the error occurred
  */
 void check_cuda(cudaError_t error, const char *filename, const int line)
 {
@@ -44,11 +44,11 @@ void check_cuda(cudaError_t error, const char *filename, const int line)
  *
  * This implementation does not make use of shared memory, therefore every
  * element in the `in` array must be read `RADIUS * 2 + 1` times. This is very
- * inneficient and you should observe a larger runtime.
+ * inefficient and you should observe a larger runtime.
  *
  * \param in    pointer to input array
  * \param out   pointer to output array
- * \param N     number of elements the the arrays
+ * \param N     number of elements the arrays
  */
 template <typename T, int RADIUS>
 __global__ void stencil_1d_naive(const T *in, T *out, size_t N)
@@ -78,7 +78,7 @@ __global__ void stencil_1d_naive(const T *in, T *out, size_t N)
  *
  * \param in    pointer to input array
  * \param out   pointer to output array
- * \param N     number of elements the the arrays
+ * \param N     number of elements the arrays
  */
 template <typename T, int RADIUS>
 __global__ void stencil_1d_shmem(const T *in, T *out, size_t N)
@@ -149,7 +149,7 @@ void run_test(const size_t N, const size_t threads)
   std::vector<T> h_out(NR, 0);
   T *d_in, *d_out;
 
-  // Compute bytes, blocks, shared mem size, ...
+  // Compute bytes, blocks, shared memory size, ...
   size_t bytes = NR * sizeof(T);
   size_t blocks = (N + threads - 1) / threads;
   size_t shmem = (threads + 2 * RADIUS) * sizeof(T);
