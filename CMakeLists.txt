@@ -14,3 +14,4 @@ set(CMAKE_CXX_STANDARD 17)
 
 # Recurse into subdirectories
 add_subdirectory(stencil)
+add_subdirectory(saxpy)
