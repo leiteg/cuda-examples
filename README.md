@@ -5,6 +5,7 @@ Some examples of CUDA applications ready for compiling and running.
 
 - [Stencil](stencil) with naïve and optimized kernel.
 - [SAXPY](saxpy) kernel.
+- [Coalescing](coalescing) examples with misaligned and strided kernels.
 
 Compiling
 --------------------------------------------------------------------------------

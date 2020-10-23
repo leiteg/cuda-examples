@@ -18,3 +18,4 @@ include_directories(include)
 # Recurse into subdirectories
 add_subdirectory(stencil)
 add_subdirectory(saxpy)
+add_subdirectory(coalescing)
