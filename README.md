@@ -3,7 +3,8 @@ CUDA Examples
 
 Some examples of CUDA applications ready for compiling and running.
 
-- [1D Stencil](stencil) with naïve and optimized kernel.
+- [Stencil](stencil) with naïve and optimized kernel.
+- [SAXPY](saxpy) kernel.
 
 Compiling
 --------------------------------------------------------------------------------
