@@ -28,9 +28,9 @@ void check_cuda(cudaError_t error, const char *filename, const int line)
 }
 
 #ifndef NDEBUG
-#define CHECK(cmd) check_cuda(cmd, __FILE__, __LINE__)
+#define CUDACHECK(cmd) check_cuda(cmd, __FILE__, __LINE__)
 #else
-#define CHECK(cmd) cmd
+#define CUDACHECK(cmd) cmd
 #endif
 
 #endif /* __COMMON_H__ */

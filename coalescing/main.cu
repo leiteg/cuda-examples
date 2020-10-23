@@ -58,27 +58,27 @@ void test_offset(size_t mbs)
   T *d_A;
 
   // Create events
-  cudaEventCreate(&start);
-  cudaEventCreate(&stop);
+  CUDACHECK(cudaEventCreate(&start));
+  CUDACHECK(cudaEventCreate(&stop));
 
   // Get the actual size in number of elements
   size_t N = (mbs * 1024 * 1024) / sizeof(T);
 
   // Allocate host and device data
   // Needs 33 times more data because of far strides
-  cudaMalloc(&d_A, sizeof(T) * N * 33);
-  cudaMemset(d_A, 0.0, N * sizeof(T));
+  CUDACHECK(cudaMalloc(&d_A, sizeof(T) * N * 33));
+  CUDACHECK(cudaMemset(d_A, 0.0, N * sizeof(T)));
 
   // Vary offset, execute kernel and measure time
   for (int offset = 0; offset <= 32; offset++) {
     mean_time = 0.0f;
     // Sample the kernel a couple of times
     for (int i = 0; i < 10; i++) {
-      cudaEventRecord(start);
+      CUDACHECK(cudaEventRecord(start));
       offset_access<<<(N+255)/256, 256>>>(d_A, offset);
-      cudaEventRecord(stop);
-      cudaEventSynchronize(stop);
-      cudaEventElapsedTime(&ms, start, stop);
+      CUDACHECK(cudaEventRecord(stop));
+      CUDACHECK(cudaEventSynchronize(stop));
+      CUDACHECK(cudaEventElapsedTime(&ms, start, stop));
       mean_time += ms;
     }
 
@@ -91,9 +91,9 @@ void test_offset(size_t mbs)
   }
 
   // Cleanup
-  cudaFree(d_A);
-  cudaEventDestroy(start);
-  cudaEventDestroy(stop);
+  CUDACHECK(cudaFree(d_A));
+  CUDACHECK(cudaEventDestroy(start));
+  CUDACHECK(cudaEventDestroy(stop));
 }
 
 /**
@@ -109,27 +109,27 @@ void test_stride(size_t mbs)
   T *d_A;
 
   // Create events
-  cudaEventCreate(&start);
-  cudaEventCreate(&stop);
+  CUDACHECK(cudaEventCreate(&start));
+  CUDACHECK(cudaEventCreate(&stop));
 
   // Get the actual size in number of elements
   size_t N = (mbs * 1024 * 1024) / sizeof(T);
 
   // Allocate host and device data
   // Needs 33 times more data because of far strides
-  cudaMalloc(&d_A, sizeof(T) * N * 33);
-  cudaMemset(d_A, 0.0, N * sizeof(T));
+  CUDACHECK(cudaMalloc(&d_A, sizeof(T) * N * 33));
+  CUDACHECK(cudaMemset(d_A, 0.0, N * sizeof(T)));
 
   // Vary stride, execute kernel and measure time
   for (int stride = 1; stride <= 32; stride++) {
     mean_time = 0.0f;
     // Sample the kernel a couple of times
     for (int i = 0; i < 10; i++) {
-      cudaEventRecord(start);
+      CUDACHECK(cudaEventRecord(start));
       stride_access<<<(N+255)/256, 256>>>(d_A, stride);
-      cudaEventRecord(stop);
-      cudaEventSynchronize(stop);
-      cudaEventElapsedTime(&ms, start, stop);
+      CUDACHECK(cudaEventRecord(stop));
+      CUDACHECK(cudaEventSynchronize(stop));
+      CUDACHECK(cudaEventElapsedTime(&ms, start, stop));
       mean_time += ms;
     }
 
@@ -142,9 +142,9 @@ void test_stride(size_t mbs)
   }
 
   // Cleanup
-  cudaFree(d_A);
-  cudaEventDestroy(start);
-  cudaEventDestroy(stop);
+  CUDACHECK(cudaFree(d_A));
+  CUDACHECK(cudaEventDestroy(start));
+  CUDACHECK(cudaEventDestroy(stop));
 }
 
 /**
@@ -161,7 +161,7 @@ int main(int argc, char **argv)
   size_t N = atol(argv[2]);
 
   cudaDeviceProp prop;
-  cudaGetDeviceProperties(&prop, 0);
+  CUDACHECK(cudaGetDeviceProperties(&prop, 0));
   std::fprintf(stderr, "Device name: %s\n", prop.name);
 
   if (type == "offset") {

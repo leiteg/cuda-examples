@@ -133,26 +133,26 @@ void run_test(const size_t N, const size_t threads)
   size_t shmem = (threads + 2 * RADIUS) * sizeof(T);
 
   // Allocate device memory
-  CHECK(cudaMalloc(&d_in, bytes));
-  CHECK(cudaMalloc(&d_out, bytes));
+  CUDACHECK(cudaMalloc(&d_in, bytes));
+  CUDACHECK(cudaMalloc(&d_out, bytes));
 
   // Copy input data
-  CHECK(cudaMemcpy(d_in, h_in.data(), bytes, cudaMemcpyHostToDevice));
+  CUDACHECK(cudaMemcpy(d_in, h_in.data(), bytes, cudaMemcpyHostToDevice));
 
   // Run naive kernel a couple of times
   for (int sample = 0; sample < 5; sample++)
     stencil_1d_naive<T, RADIUS><<<blocks, threads>>>(d_in, d_out, N);
 
-  CHECK(cudaDeviceSynchronize());
-  CHECK(cudaMemcpy(h_out.data(), d_out, bytes, cudaMemcpyDeviceToHost));
+  CUDACHECK(cudaDeviceSynchronize());
+  CUDACHECK(cudaMemcpy(h_out.data(), d_out, bytes, cudaMemcpyDeviceToHost));
   // verify(h_out, (T)(2 * RADIUS + 1));
 
   // Run naive kernel a couple of times
   for (int sample = 0; sample < 5; sample++)
     stencil_1d_shmem<T, RADIUS><<<blocks, threads, shmem>>>(d_in, d_out, N);
 
-  CHECK(cudaDeviceSynchronize());
-  CHECK(cudaMemcpy(h_out.data(), d_out, bytes, cudaMemcpyDeviceToHost));
+  CUDACHECK(cudaDeviceSynchronize());
+  CUDACHECK(cudaMemcpy(h_out.data(), d_out, bytes, cudaMemcpyDeviceToHost));
   // verify(h_out, (T)(2 * RADIUS + 1));
 
   // Free memory
