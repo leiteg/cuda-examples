@@ -51,7 +51,7 @@ __global__ void stride_access(T *A, const size_t stride)
  * \param mbs   size of the buffer in megabytes
  */
 template <typename T>
-void test_offset(size_t mbs)
+int test_offset(size_t mbs)
 {
   float ms, mean_time;
   cudaEvent_t start, stop;
@@ -75,7 +75,7 @@ void test_offset(size_t mbs)
     // Sample the kernel a couple of times
     for (int i = 0; i < 10; i++) {
       CUDACHECK(cudaEventRecord(start));
-      offset_access<<<(N+255)/256, 256>>>(d_A, offset);
+      offset_access<<<(N + 255) / 256, 256>>>(d_A, offset);
       CUDACHECK(cudaEventRecord(stop));
       CUDACHECK(cudaEventSynchronize(stop));
       CUDACHECK(cudaEventElapsedTime(&ms, start, stop));
@@ -94,6 +94,8 @@ void test_offset(size_t mbs)
   CUDACHECK(cudaFree(d_A));
   CUDACHECK(cudaEventDestroy(start));
   CUDACHECK(cudaEventDestroy(stop));
+
+  return EXIT_SUCCESS;
 }
 
 /**
@@ -102,7 +104,7 @@ void test_offset(size_t mbs)
  * \param mbs   size of the buffer in megabytes
  */
 template <typename T>
-void test_stride(size_t mbs)
+int test_stride(size_t mbs)
 {
   float ms, mean_time;
   cudaEvent_t start, stop;
@@ -126,7 +128,7 @@ void test_stride(size_t mbs)
     // Sample the kernel a couple of times
     for (int i = 0; i < 10; i++) {
       CUDACHECK(cudaEventRecord(start));
-      stride_access<<<(N+255)/256, 256>>>(d_A, stride);
+      stride_access<<<(N + 255) / 256, 256>>>(d_A, stride);
       CUDACHECK(cudaEventRecord(stop));
       CUDACHECK(cudaEventSynchronize(stop));
       CUDACHECK(cudaEventElapsedTime(&ms, start, stop));
@@ -145,6 +147,8 @@ void test_stride(size_t mbs)
   CUDACHECK(cudaFree(d_A));
   CUDACHECK(cudaEventDestroy(start));
   CUDACHECK(cudaEventDestroy(stop));
+
+  return EXIT_SUCCESS;
 }
 
 /**
@@ -164,15 +168,11 @@ int main(int argc, char **argv)
   CUDACHECK(cudaGetDeviceProperties(&prop, 0));
   std::fprintf(stderr, "Device name: %s\n", prop.name);
 
-  if (type == "offset") {
-    test_offset<float>(N);
-    return EXIT_SUCCESS;
-  }
+  if (type == "offset")
+    return test_offset<float>(N);
 
-  if (type == "stride") {
-    test_stride<float>(N);
-    return EXIT_SUCCESS;
-  }
+  if (type == "stride")
+    return test_stride<float>(N);
 
   std::fprintf(stderr, "Error: Unrecognized operation.\n");
   return EXIT_FAILURE;
