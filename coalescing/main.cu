@@ -152,6 +152,26 @@ int test_stride(size_t mbs)
 }
 
 /**
+ * \brief Profile stride kernel.
+ */
+template <typename T>
+int prof_stride(size_t mbs, int stride)
+{
+  auto N = mbs * 1024 * 1024 / sizeof(T);
+  T *d_A;
+
+  CUDACHECK(cudaMalloc(&d_A, N * sizeof(T) * 33));
+  CUDACHECK(cudaMemset(d_A, 0, N * sizeof(T) * 33));
+
+  stride_access<<<(N + 255) / 256, 256>>>(d_A, stride);
+
+  CUDACHECK(cudaDeviceSynchronize());
+  CUDACHECK(cudaFree(d_A));
+
+  return EXIT_SUCCESS;
+}
+
+/**
  * \brief Program entry-point.
  */
 int main(int argc, char **argv)
@@ -173,6 +193,9 @@ int main(int argc, char **argv)
 
   if (type == "stride")
     return test_stride<float>(N);
+
+  if (type == "prof-stride")
+    return prof_stride<float>(N, (argc >= 4) ? atoi(argv[3]) : 1);
 
   std::fprintf(stderr, "Error: Unrecognized operation.\n");
   return EXIT_FAILURE;
