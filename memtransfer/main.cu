@@ -39,7 +39,10 @@ struct PinnedAllocator {
   }
 
   /// Pinned memory deallocation
-  void deallocate(T *ptr, std::size_t n) noexcept { cudaFreeHost(ptr); }
+  void deallocate(T *ptr, std::size_t n) noexcept
+  {
+    CUDACHECK(cudaFreeHost(ptr));
+  }
 };
 
 /// Alias declaration for a vector allocated with pinned memory
@@ -61,11 +64,10 @@ int main(int argc, char **argv)
   size_t end = ((argc >= 3) ? atol(argv[2]) : 10) << 20;
   // How many bytes to increment the benchmark every iteration
   size_t inc = ((argc >= 4) ? atol(argv[3]) : 1) << 20;
-  //
+  // Count elements from size in bytes
   size_t elements = end / sizeof(float);
-
-  float pageable_time, pinned_time;
-  float pageable_bw, pinned_bw;
+  // Time and bandwidth
+  float pageable_time, pinned_time, pageable_bw, pinned_bw;
 
   // Create events
   cudaEvent_t e1, e2, e3;
