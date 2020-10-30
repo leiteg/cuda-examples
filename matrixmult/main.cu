@@ -76,16 +76,16 @@ template <typename T>
 __global__ void mm_gpu_naive(T *C, const T *A, const T *B, size_t N)
 {
   // Calculate indices
-  int i = blockDim.x * blockIdx.x + threadIdx.x;
-  int j = blockDim.y * blockIdx.y + threadIdx.y;
+  int row = blockDim.x * blockIdx.x + threadIdx.x;
+  int col = blockDim.y * blockIdx.y + threadIdx.y;
 
-  // Calculate element C[i, j]
+  // Calculate element C[row, col]
   T sum = (T)0;
   for (int k = 0; k < N; k++)
-    sum += A[i * N + k] * B[k * N + j];
+    sum += A[row * N + k] * B[k * N + col];
 
   // Save results to global memory
-  C[i * N + j] = sum;
+  C[row * N + col] = sum;
 }
 
 /**
@@ -108,17 +108,15 @@ __global__ void mm_gpu_tiled(T *C, const T *A, const T *B, size_t N)
   const static int TILE_WIDTH = 32;
 
   // Local indices
-  int tx = threadIdx.x;
-  int ty = threadIdx.y;
-  int bx = blockIdx.x;
-  int by = blockIdx.y;
+  int tx = threadIdx.x, ty = threadIdx.y;
+  int bx = blockIdx.x, by = blockIdx.y;
 
   // Global indices
-  int i = blockDim.y * by + ty;
-  int j = blockDim.x * bx + tx;
+  int row = blockDim.y * by + ty;
+  int col = blockDim.x * bx + tx;
 
   // Out-of-bounds check
-  if ((i >= N) || (j >= N))
+  if ((row >= N) || (col >= N))
     return;
 
   // Shared memory tile buffer
@@ -131,8 +129,8 @@ __global__ void mm_gpu_tiled(T *C, const T *A, const T *B, size_t N)
   for (int k = 0; k < N / TILE_WIDTH; k++) {
 
     // Load tile to shared memory
-    tile_A[ty][tx] = A[i * N + k * TILE_WIDTH + tx];
-    tile_B[ty][tx] = B[(k * TILE_WIDTH + ty) * N + j];
+    tile_A[ty][tx] = A[row * N + k * TILE_WIDTH + tx];
+    tile_B[ty][tx] = B[(k * TILE_WIDTH + ty) * N + col];
 
     // Wait for shared memory to be populated
     __syncthreads();
@@ -147,7 +145,7 @@ __global__ void mm_gpu_tiled(T *C, const T *A, const T *B, size_t N)
   }
 
   // Write results back to global memory
-  C[i * N + j] = sum;
+  C[row * N + col] = sum;
 }
 
 /**
