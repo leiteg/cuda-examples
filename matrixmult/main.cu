@@ -76,8 +76,8 @@ template <typename T>
 __global__ void mm_gpu_naive(T *C, const T *A, const T *B, size_t N)
 {
   // Calculate indices
-  int row = blockDim.x * blockIdx.x + threadIdx.x;
-  int col = blockDim.y * blockIdx.y + threadIdx.y;
+  int row = blockDim.y * blockIdx.y + threadIdx.y;
+  int col = blockDim.x * blockIdx.x + threadIdx.x;
 
   // Calculate element C[row, col]
   T sum = (T)0;
