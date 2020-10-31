@@ -64,8 +64,8 @@ using HostVector = std::vector<T, PinnedAllocator<T>>;
  *
  * This is just an adaptation of the naïve CPU code to the GPU. It does not tile
  * the computation neither uses shared memory. In this kernel, the matrix
- * elements are read multiple times from global memory, and this is very
- * inefficient.
+ * elements are read multiple times from global memory without regard to
+ * coalescing.
  *
  * \param C     The resulting matrix.
  * \param A     The first matrix.
@@ -74,6 +74,33 @@ using HostVector = std::vector<T, PinnedAllocator<T>>;
  */
 template <typename T>
 __global__ void mm_gpu_naive(T *C, const T *A, const T *B, size_t N)
+{
+  // Calculate indices
+  int row = blockDim.x * blockIdx.x + threadIdx.x;
+  int col = blockDim.y * blockIdx.y + threadIdx.y;
+
+  // Calculate element C[row, col]
+  T sum = (T)0;
+  for (int k = 0; k < N; k++)
+    sum += A[row * N + k] * B[k * N + col];
+
+  // Save results to global memory
+  C[row * N + col] = sum;
+}
+
+/**
+ * \brief Coalesced matrix multiplication on the GPU.
+ *
+ * This kernel improves on the naïve version by enabling more coalescing to
+ * happen. The only difference is that the row and col indices are inverted.
+ *
+ * \param C     The resulting matrix.
+ * \param A     The first matrix.
+ * \param B     The second matrix.
+ * \param N     Size of the matrix.
+ */
+template <typename T>
+__global__ void mm_gpu_coalesced(T *C, const T *A, const T *B, size_t N)
 {
   // Calculate indices
   int row = blockDim.y * blockIdx.y + threadIdx.y;
@@ -289,6 +316,7 @@ int main(int argc, char **argv)
   test_cpu<float>(N, mm_cpu_naive, "CPU Naïve");
   // test_cpu<float>(N, mm_cpu_tiled, "CPU Tiled");
   test_gpu<float>(N, mm_gpu_naive, "GPU Naïve");
+  test_gpu<float>(N, mm_gpu_coalesced, "GPU Coalesced");
   test_gpu<float>(N, mm_gpu_tiled, "GPU Tiled");
 
   return 0;
