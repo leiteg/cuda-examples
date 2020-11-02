@@ -79,6 +79,10 @@ __global__ void mm_gpu_naive(T *C, const T *A, const T *B, size_t N)
   int row = blockDim.x * blockIdx.x + threadIdx.x;
   int col = blockDim.y * blockIdx.y + threadIdx.y;
 
+  // Out-of-bounds check
+  if ((row >= N) || (col >= N))
+    return;
+
   // Calculate element C[row, col]
   T sum = (T)0;
   for (int k = 0; k < N; k++)
@@ -105,6 +109,10 @@ __global__ void mm_gpu_coalesced(T *C, const T *A, const T *B, size_t N)
   // Calculate indices
   int row = blockDim.y * blockIdx.y + threadIdx.y;
   int col = blockDim.x * blockIdx.x + threadIdx.x;
+
+  // Out-of-bounds check
+  if ((row >= N) || (col >= N))
+    return;
 
   // Calculate element C[row, col]
   T sum = (T)0;
